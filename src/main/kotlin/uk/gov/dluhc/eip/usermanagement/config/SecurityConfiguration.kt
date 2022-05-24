@@ -41,4 +41,3 @@ class SecurityConfiguration(private val jwtConfig: JwtConfig, private val jwtAut
 					.let { KeyFactory.getInstance("RSA").generatePublic(it) as RSAPublicKey }
 
 }
-
