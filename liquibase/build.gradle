@@ -13,12 +13,20 @@ dependencies {
 
 apply plugin: "org.liquibase.gradle"
 
+ext {
+    env = System.getenv()
+    HOST = env.MYSQL_HOST
+    PORT = env.MYSQL_PORT
+    USER = env.MYSQL_USER
+    PASSWORD = env.MYSQL_PASSWORD
+}
+
 liquibase {
     activities {
         mainClass {
-            url "jdbc:mysql://$System.env.MYSQL_HOST:$System.env.MYSQL_PORT/dluhc"
-            username "$System.env.MYSQL_USER"
-            password "$System.env.MYSQL_PASSWORD"
+            url "jdbc:mysql://"+HOST+":"+PORT+"/dluhc"
+            username USER
+            password PASSWORD
         }
     }
 }
