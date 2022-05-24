@@ -7,8 +7,8 @@ repositories {
 }
 
 dependencies {
-    liquibaseRuntime 'org.liquibase:liquibase-core:4.2.2'
-    liquibaseRuntime 'mysql:mysql-connector-java:5.1.36'
+    liquibaseRuntime 'org.liquibase:liquibase-core:4.10.0'
+    liquibaseRuntime 'mysql:mysql-connector-java:8.0.29'
 }
 
 apply plugin: "org.liquibase.gradle"
@@ -16,8 +16,6 @@ apply plugin: "org.liquibase.gradle"
 liquibase {
     activities {
         mainClass {
-            changeLogFile "/changelog/db.changelog-master.xml"
-            contexts "ddl"
             url "jdbc:mysql://$System.env.MYSQL_HOST:$System.env.MYSQL_PORT/dluhc"
             username "$System.env.MYSQL_USER"
             password "$System.env.MYSQL_PASSWORD"
