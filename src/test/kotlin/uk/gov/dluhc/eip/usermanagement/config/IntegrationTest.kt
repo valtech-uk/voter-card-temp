@@ -7,8 +7,6 @@ import org.springframework.test.web.reactive.server.WebTestClient
 
 /**
  * Base class used to bring up the entire Spring ApplicationContext including web context and server.
- *
- * A mySql container is started and configured.
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
