@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.utility.DockerImageName
+import uk.gov.dluhc.eip.usermanagement.cognito.UserPool
+import uk.gov.dluhc.eip.usermanagement.cognito.UserPool.DLUHC
+import uk.gov.dluhc.eip.usermanagement.cognito.UserPool.ERO
 import java.util.*
 
 /**
@@ -42,13 +45,19 @@ class LocalStackContainerConfiguration {
 	 */
 	@Bean
 	fun localStackContainerSettings(localStackContainer: GenericContainer<*>): LocalStackContainerSettings {
-		val userPoolId = localStackContainer.createCognitoUserPool("users")
-		val clientId = localStackContainer.createCognitoUserPoolClient(userPoolId, "users")
-		val cognitoPublicKey = localStackContainer.getCognitoUserPoolPublicKey(userPoolId)
+		val eroUserPoolId = localStackContainer.createCognitoUserPool("ero")
+		val eroClientId = localStackContainer.createCognitoUserPoolClient(eroUserPoolId, "ero")
+		val eroCognitoPublicKey = localStackContainer.getCognitoUserPoolPublicKey(eroUserPoolId)
+		val dluchUserPoolId = localStackContainer.createCognitoUserPool("dluch")
+		val dluchClientId = localStackContainer.createCognitoUserPoolClient(dluchUserPoolId, "dluch")
+		val dluchCognitoPublicKey = localStackContainer.getCognitoUserPoolPublicKey(dluchUserPoolId)
 
 		return LocalStackContainerSettings(
 				apiUrl = "http://${localStackContainer.host}:${localStackContainer.getMappedPort(4566)}",
-				cognito = Cognito(userPoolId, clientId, cognitoPublicKey)
+				userPoolCognitoSettings = mapOf(
+						ERO to Cognito(eroUserPoolId, eroClientId, eroCognitoPublicKey),
+						DLUHC to Cognito(dluchUserPoolId, dluchClientId, dluchCognitoPublicKey),
+				)
 		)
 	}
 
@@ -93,7 +102,7 @@ class LocalStackContainerConfiguration {
 
 data class LocalStackContainerSettings(
 		val apiUrl: String,
-		val cognito: Cognito
+		val userPoolCognitoSettings: Map<UserPool, Cognito>,
 )
 
 data class Cognito(

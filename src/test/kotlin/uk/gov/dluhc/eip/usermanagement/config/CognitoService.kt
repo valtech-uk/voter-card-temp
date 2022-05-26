@@ -5,6 +5,7 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthFlowType
+import uk.gov.dluhc.eip.usermanagement.cognito.UserPool
 import java.net.URI
 import java.util.*
 
@@ -20,22 +21,26 @@ class CognitoService(private val localStackContainerSettings: LocalStackContaine
 			.build()
 
 	/**
-	 * Create a cognito user.
+	 * Create a cognito user in the specified user pool.
 	 * If password is not specified a random (UUID) password will be assigned.
 	 * If groups are not specified the user will not be assigned to any groups. Any groups that are specified need to have been previously created
 	 * via [CognitoService.createGroups] or [CognitoService.createGroup].
 	 *
 	 * @return a [CognitoUser] representing the created user, their password, and assigned groups.
 	 */
-	fun createUser(username: String, password: String = UUID.randomUUID().toString(), groups: Set<String> = emptySet()): CognitoUser =
+	fun createUser(userPool: UserPool, username: String, password: String = UUID.randomUUID().toString(), groups: Set<String> = emptySet()): CognitoUser =
 			with(cognitoClient) {
+				val userPoolId = when(userPool) {
+					UserPool.ERO -> localStackContainerSettings.userPoolCognitoSettings[UserPool.ERO]!!.userPoolId
+					UserPool.DLUHC -> localStackContainerSettings.userPoolCognitoSettings[UserPool.DLUHC]!!.userPoolId
+				}
 				adminCreateUser {
-					it.userPoolId(localStackContainerSettings.cognito.userPoolId)
+					it.userPoolId(userPoolId)
 							.username(username)
 							.messageAction("SUPPRESS")
 				}
 				adminSetUserPassword {
-					it.userPoolId(localStackContainerSettings.cognito.userPoolId)
+					it.userPoolId(userPoolId)
 							.username(username)
 							.password(password)
 							.permanent(true)
@@ -43,40 +48,47 @@ class CognitoService(private val localStackContainerSettings: LocalStackContaine
 
 				groups.forEach { groupName ->
 					adminAddUserToGroup {
-						it.userPoolId(localStackContainerSettings.cognito.userPoolId)
+						it.userPoolId(userPoolId)
 								.username(username)
 								.groupName(groupName)
 					}
 				}
 
-				CognitoUser(username, password, groups)
+				CognitoUser(userPool, username, password, groups)
 			}
 
-	fun authenticateUser(cognitoUser: CognitoUser) = authenticateUser(cognitoUser.username, cognitoUser.password)
+	fun authenticateUser(cognitoUser: CognitoUser) = authenticateUser(cognitoUser.userPool, cognitoUser.username, cognitoUser.password)
 
-	fun authenticateUser(username: String, password: String): String {
-		var authResponse = cognitoClient.initiateAuth {
-			it.clientId(localStackContainerSettings.cognito.clientId)
+	fun authenticateUser(userPool: UserPool, username: String, password: String): String =
+		cognitoClient.initiateAuth {
+			val clientId = when(userPool) {
+				UserPool.ERO -> localStackContainerSettings.userPoolCognitoSettings[UserPool.ERO]!!.clientId
+				UserPool.DLUHC -> localStackContainerSettings.userPoolCognitoSettings[UserPool.DLUHC]!!.clientId
+			}
+			it.clientId(clientId)
 					.authFlow(AuthFlowType.USER_PASSWORD_AUTH)
 					.authParameters(mapOf(
 							"USERNAME" to username,
 							"PASSWORD" to password
 					))
-		}
-		return authResponse.authenticationResult().accessToken()
-	}
+		}.authenticationResult().accessToken()
+
 
 	/**
 	 * Creates Cognito groups that can subsequently be used as part of creating a user.
 	 */
-	fun createGroups(groups: Set<String>) = groups.forEach { createGroup(it) }
+	fun createGroups(userPool: UserPool, groups: Set<String>) = groups.forEach { createGroup(userPool, it) }
 
 	/**
 	 * Creates a Cognito group that can subsequently be used as part of creating a user.
 	 */
-	fun createGroup(groupName: String) {
+	fun createGroup(userPool: UserPool, groupName: String) {
 		cognitoClient.createGroup {
-			it.userPoolId(localStackContainerSettings.cognito.userPoolId)
+			val userPoolId = when(userPool) {
+				UserPool.ERO -> localStackContainerSettings.userPoolCognitoSettings[UserPool.ERO]!!.userPoolId
+				UserPool.DLUHC -> localStackContainerSettings.userPoolCognitoSettings[UserPool.DLUHC]!!.userPoolId
+			}
+			it.userPoolId(userPoolId)
 					.groupName(groupName)
 		}
 	}
@@ -87,6 +99,7 @@ class CognitoService(private val localStackContainerSettings: LocalStackContaine
  * Simple class encapsulating the username, password and assigned groups of a Cognito user.
  */
 data class CognitoUser(
+		val userPool: UserPool,
 		val username: String,
 		val password: String,
 		val groups: Set<String> = emptySet()

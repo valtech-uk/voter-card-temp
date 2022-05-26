@@ -3,16 +3,17 @@ package uk.gov.dluhc.eip.usermanagement.rest
 import org.junit.jupiter.api.Test
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBodyList
+import uk.gov.dluhc.eip.usermanagement.cognito.UserPool.ERO
 import uk.gov.dluhc.eip.usermanagement.config.IntegrationTest
 import uk.gov.dluhc.eip.usermanagement.models.UserEro
 
 internal class UserManagementControllerIntegrationTest : IntegrationTest() {
 
 	@Test
-	fun `should get current user given request with a valid jwt`() {
+	fun `should get current user given request with a valid ERO user jwt`() {
 		// Given
-		cognitoService.createGroup("ero-admin-1234")
-		val cognitoUser = cognitoService.createUser(username = "user@wiltshire.gov.uk", groups = setOf("ero-admin-1234"))
+		cognitoService.createGroup(ERO, "ero-admin-1234")
+		val cognitoUser = cognitoService.createUser(ERO, username = "user@wiltshire.gov.uk", groups = setOf("ero-admin-1234"))
 		val bearerToken = cognitoService.authenticateUser(cognitoUser)
 
 		val expectedResponseBody = listOf(UserEro("1234", "TBC"))
