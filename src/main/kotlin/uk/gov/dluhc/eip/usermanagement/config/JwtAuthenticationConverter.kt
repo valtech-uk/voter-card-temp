@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono
 class JwtAuthenticationConverter : Converter<Jwt, Mono<AbstractAuthenticationToken>> {
 
 	override fun convert(jwt: Jwt): Mono<AbstractAuthenticationToken> {
-		val authorities = (jwt.claims["authorities"] as Collection<String>).map { SimpleGrantedAuthority(it) }
+		val authorities = (jwt.claims["cognito:groups"] as Collection<String>).map { SimpleGrantedAuthority(it) }
 		return Mono.just(JwtAuthenticationToken(jwt, authorities))
 	}
 }

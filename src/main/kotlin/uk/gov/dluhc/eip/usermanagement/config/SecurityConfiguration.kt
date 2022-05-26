@@ -38,6 +38,8 @@ class SecurityConfiguration(private val jwtConfig: JwtConfig, private val jwtAut
 
 	private fun readPublicKey(publicKeyString: String): RSAPublicKey =
 			X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyString))
-					.let { KeyFactory.getInstance("RSA").generatePublic(it) as RSAPublicKey }
+					.let {
+						KeyFactory.getInstance("RSA").generatePublic(it) as RSAPublicKey
+					}
 
 }

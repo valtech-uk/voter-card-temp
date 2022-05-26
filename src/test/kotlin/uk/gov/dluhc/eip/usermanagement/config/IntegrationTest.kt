@@ -15,4 +15,7 @@ internal abstract class IntegrationTest {
 	@Autowired
 	protected lateinit var webTestClient: WebTestClient
 
+	@Autowired
+	protected lateinit var cognitoService: CognitoService
+
 }

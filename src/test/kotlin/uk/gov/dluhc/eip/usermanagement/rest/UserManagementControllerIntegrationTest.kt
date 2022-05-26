@@ -1,28 +1,32 @@
 package uk.gov.dluhc.eip.usermanagement.rest
 
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBodyList
 import uk.gov.dluhc.eip.usermanagement.config.IntegrationTest
+import uk.gov.dluhc.eip.usermanagement.models.UserEro
 
 internal class UserManagementControllerIntegrationTest : IntegrationTest() {
 
 	@Test
 	fun `should get current user given request with a valid jwt`() {
 		// Given
-		val expectedResponseBody = UserResponse("user@wiltshire.gov.uk", setOf("ero-admin"))
+		cognitoService.createGroup("ero-admin-1234")
+		val cognitoUser = cognitoService.createUser(username = "user@wiltshire.gov.uk", groups = setOf("ero-admin-1234"))
+		val bearerToken = cognitoService.authenticateUser(cognitoUser)
+
+		val expectedResponseBody = listOf(UserEro("1234", "TBC"))
 
 		// When / Then
 		webTestClient.get()
-				.uri("/user")
+				.uri("/usermanagement/ero/user")
 				.headers {
-					it["authorization"] = listOf("Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQHdpbHRzaGlyZS5nb3YudWsiLCJpYXQiOjE1MTYyMzkwMjIsImF1dGhvcml0aWVzIjpbImVyby1hZG1pbiJdfQ.D34dNR4H7AafF5YKxicNQTOiPL63dbgMBsCmjEpYjBlgPSCVakRu4bdXDiGeZbrk5KRV92h7fuCwkwNM7GA-OyES3CV96qhT33S0rR1zFPAu2fd8yjqf_3Kat6p1L-9g4TLnFxBXVAuWdIMVYJNWKqvfo7J4Vk-QCchPulDoi4w")
+					it["authorization"] = listOf("Bearer $bearerToken")
 				}
 				.exchange()
 				.expectStatus().isOk
-				.expectBody(UserResponse::class.java)
-				.value {
-					assertThat(it).isEqualTo(expectedResponseBody)
-				}
+				.expectBodyList<UserEro>()
+				.isEqualTo<WebTestClient.ListBodySpec<UserEro>>(expectedResponseBody)
 	}
 
 	@Test
@@ -31,7 +35,7 @@ internal class UserManagementControllerIntegrationTest : IntegrationTest() {
 
 		// When / Then
 		webTestClient.get()
-				.uri("/user")
+				.uri("/usermanagement/ero/user")
 				.exchange()
 				.expectStatus().isUnauthorized
 	}
@@ -42,7 +46,7 @@ internal class UserManagementControllerIntegrationTest : IntegrationTest() {
 
 		// When / Then
 		webTestClient.get()
-				.uri("/user")
+				.uri("/usermanagement/ero/user")
 				.headers {
 					it["authorization"] = listOf("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQHdpbHRzaGlyZS5nb3YudWsiLCJpYXQiOjE1MTYyMzkwMjIsImF1dGhvcml0aWVzIjpbImVyby1hZG1pbiJdfQ.-pxW8z2xb-AzNLTRP_YRnm9fQDcK6CLt6HimtS8VcDY")
 				}
