@@ -18,18 +18,22 @@ class SecurityConfiguration(private val jwtConfig: JwtConfig, private val jwtAut
 
 	@Bean
 	fun SecurityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain =
-			http
-					.exceptionHandling()
-					.authenticationEntryPoint { exchange, ex -> Mono.fromRunnable { exchange.response.statusCode = UNAUTHORIZED } }
-					.accessDeniedHandler { exchange, ex -> Mono.fromRunnable { exchange.response.statusCode = FORBIDDEN } }
-					.and().formLogin().disable()
-					.httpBasic().disable()
-					.authorizeExchange()
-						.pathMatchers(OPTIONS).permitAll()
-						.anyExchange().authenticated()
-					.and().oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthenticationConverter)
-					.jwkSetUri(jwtConfig.eroJwtIssuerUri)
-					.and()
-					.and().build()
-
+			http.apply {
+				exceptionHandling {
+					it.authenticationEntryPoint { exchange, ex -> Mono.fromRunnable { exchange.response.statusCode = UNAUTHORIZED } }
+					it.accessDeniedHandler { exchange, ex -> Mono.fromRunnable { exchange.response.statusCode = FORBIDDEN } }
+				}
+				formLogin { it.disable() }
+				httpBasic { it.disable() }
+				authorizeExchange {
+					it.pathMatchers(OPTIONS).permitAll()
+					it.anyExchange().authenticated()
+				}
+				oauth2ResourceServer {
+					it.jwt {
+						it.jwtAuthenticationConverter(jwtAuthenticationConverter)
+						it.jwkSetUri(jwtConfig.eroJwtIssuerUri)
+					}
+				}
+			}.build()
 }
