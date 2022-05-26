@@ -5,4 +5,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConstructorBinding
 @ConfigurationProperties(prefix = "jwt")
-data class JwtConfig(val publicKey: String)
+data class JwtConfig(
+		val eroJwtIssuerUri: String,
+		val dluhcJwtIssuerUri: String,
+)

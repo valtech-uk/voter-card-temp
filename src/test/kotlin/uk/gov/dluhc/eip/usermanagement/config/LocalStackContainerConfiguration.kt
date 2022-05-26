@@ -47,16 +47,16 @@ class LocalStackContainerConfiguration {
 	fun localStackContainerSettings(localStackContainer: GenericContainer<*>): LocalStackContainerSettings {
 		val eroUserPoolId = localStackContainer.createCognitoUserPool("ero")
 		val eroClientId = localStackContainer.createCognitoUserPoolClient(eroUserPoolId, "ero")
-		val eroCognitoPublicKey = localStackContainer.getCognitoUserPoolPublicKey(eroUserPoolId)
 		val dluchUserPoolId = localStackContainer.createCognitoUserPool("dluch")
 		val dluchClientId = localStackContainer.createCognitoUserPoolClient(dluchUserPoolId, "dluch")
-		val dluchCognitoPublicKey = localStackContainer.getCognitoUserPoolPublicKey(dluchUserPoolId)
+
+		val apiUrl = "http://${localStackContainer.host}:${localStackContainer.getMappedPort(4566)}"
 
 		return LocalStackContainerSettings(
-				apiUrl = "http://${localStackContainer.host}:${localStackContainer.getMappedPort(4566)}",
+				apiUrl = apiUrl,
 				userPoolCognitoSettings = mapOf(
-						ERO to Cognito(eroUserPoolId, eroClientId, eroCognitoPublicKey),
-						DLUHC to Cognito(dluchUserPoolId, dluchClientId, dluchCognitoPublicKey),
+						ERO to Cognito(eroUserPoolId, eroClientId, "$apiUrl/$eroUserPoolId/.well-known/jwks.json"),
+						DLUHC to Cognito(dluchUserPoolId, dluchClientId, "$apiUrl/$dluchUserPoolId/.well-known/jwks.json"),
 				)
 		)
 	}
@@ -80,20 +80,6 @@ class LocalStackContainerConfiguration {
 				(it["UserPoolClient"] as Map<String, String>)["ClientId"]!!
 			}
 
-	private fun GenericContainer<*>.getCognitoUserPoolPublicKey(userPoolId: String): String {
-		return execInContainer(
-				"curl", "http://localhost:4566/$userPoolId/.well-known/jwks.json"
-		).stdout.let {
-			objectMapper.readValue(it, Map::class.java)
-		}.let {
-			(it["keys"] as List<Map<String, String>>)[0]
-		}.let {
-			RSAKey.parse(it)
-		}.let {
-			Base64.getEncoder().encodeToString(it.toPublicKey().encoded)
-		}
-	}
-
 	private fun GenericContainer<*>.createS3Bucket(bucketName: String) =
 			execInContainer(
 					"awslocal", "s3", "mb", "s3://$bucketName"
@@ -108,5 +94,5 @@ data class LocalStackContainerSettings(
 data class Cognito(
 		val userPoolId: String,
 		val clientId: String,
-		val publicKey: String,
+		val jwtIssuerUri: String,
 )

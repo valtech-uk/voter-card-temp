@@ -10,10 +10,6 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
 import reactor.core.publisher.Mono
-import java.security.KeyFactory
-import java.security.interfaces.RSAPublicKey
-import java.security.spec.X509EncodedKeySpec
-import java.util.*
 
 @Configuration
 @EnableWebFluxSecurity
@@ -32,14 +28,8 @@ class SecurityConfiguration(private val jwtConfig: JwtConfig, private val jwtAut
 						.pathMatchers(OPTIONS).permitAll()
 						.anyExchange().authenticated()
 					.and().oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthenticationConverter)
-					.publicKey(readPublicKey(jwtConfig.publicKey))
+					.jwkSetUri(jwtConfig.eroJwtIssuerUri)
 					.and()
 					.and().build()
-
-	private fun readPublicKey(publicKeyString: String): RSAPublicKey =
-			X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyString))
-					.let {
-						KeyFactory.getInstance("RSA").generatePublic(it) as RSAPublicKey
-					}
 
 }
