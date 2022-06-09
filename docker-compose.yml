@@ -1,0 +1,16 @@
+version: "3"
+services:
+  database:
+    image: mysql:8
+    container_name: database
+    volumes:
+#      - mysql-data:/var/lib/mysql
+      - ./init.sql:/sql/init.sql
+    ports:
+      - 13306:3306
+    command: --init-file /sql/init.sql --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootPassword
+
+#volumes:
+#  mysql-data:

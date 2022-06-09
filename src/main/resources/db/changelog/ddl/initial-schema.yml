@@ -1,0 +1,89 @@
+databaseChangeLog:
+  - changeSet:
+      id: initial-schema
+      author: nathan
+      changes:
+        # envers revinfo table
+        - createTable:
+            tableName: revinfo
+            columns:
+              - column:
+                  name: rev
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: revtstmp
+                  type: bigint
+
+        # person table
+        - createTable:
+            tableName: person
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  generationType: identity
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: line1
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: line2
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: town
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: postcode
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+
+        # person_aud table
+        - createTable:
+            tableName: person_aud
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: REV
+                  type: int
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: REVTYPE
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(200)
+              - column:
+                  name: line1
+                  type: varchar(200)
+              - column:
+                  name: line2
+                  type: varchar(200)
+              - column:
+                  name: town
+                  type: varchar(200)
+              - column:
+                  name: postcode
+                  type: varchar(200)
