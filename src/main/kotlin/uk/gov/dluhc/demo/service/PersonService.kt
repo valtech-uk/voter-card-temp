@@ -1,6 +1,7 @@
 package uk.gov.dluhc.demo.service
 
 import org.springframework.stereotype.Service
+import uk.gov.dluhc.demo.repository.Address
 import uk.gov.dluhc.demo.repository.Person
 import uk.gov.dluhc.demo.repository.PersonRepository
 import javax.transaction.Transactional
@@ -8,13 +9,11 @@ import javax.transaction.Transactional
 @Service
 class PersonService(private val personRepository: PersonRepository){
 
-	fun createPerson(name: String, line1: String, line2: String, town: String, postcode: String): Person {
+	fun createPerson(name: String, addresses:List<Address>): Person {
+
 		val person = Person(
 				name = name,
-				line1 = line1,
-				line2 = line2,
-				town = town,
-				postcode = postcode
+				addresses= addresses
 		)
 		return savePerson(person)
 	}

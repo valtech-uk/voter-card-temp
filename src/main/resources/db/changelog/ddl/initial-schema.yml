@@ -32,6 +32,51 @@ databaseChangeLog:
                   type: varchar(200)
                   constraints:
                     nullable: false
+
+        # person_aud table
+        - createTable:
+            tableName: person_aud
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: rev
+                  type: int
+                  constraints:
+                    primaryKey: true
+                    foreignKeyName: fk_person_aud_revinfo
+                    references: revinfo(rev)
+              - column:
+                  name: revtype
+                  type: int
+              - column:
+                  name: name
+                  type: varchar(200)
+              - createIndex:
+                  columns:
+                    - column:
+                        name: rev
+                  indexName: person_aud_rev_idx
+        # address table
+        - createTable:
+            tableName: address
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  generationType: identity
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: person_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_address_person
+                    references: person(id)
               - column:
                   name: line1
                   type: varchar(200)
@@ -53,9 +98,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
 
-        # person_aud table
+        # address_aud table
         - createTable:
-            tableName: person_aud
+            tableName: address_aud
             columns:
               - column:
                   name: id
@@ -63,18 +108,15 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
               - column:
-                  name: REV
+                  name: rev
                   type: int
                   constraints:
                     primaryKey: true
+                    foreignKeyName: fk_address_aud_revinfo
+                    references: revinfo(rev)
               - column:
-                  name: REVTYPE
+                  name: revtype
                   type: int
-                  constraints:
-                    nullable: false
-              - column:
-                  name: name
-                  type: varchar(200)
               - column:
                   name: line1
                   type: varchar(200)
@@ -87,3 +129,38 @@ databaseChangeLog:
               - column:
                   name: postcode
                   type: varchar(200)
+              - createIndex:
+                  columns:
+                    - column:
+                        name: rev
+                  indexName: address_aud_rev_idx
+
+        # person_address_aud table
+        - createTable:
+            tableName: person_address_aud
+            columns:
+              - column:
+                  name: person_id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: rev
+                  type: int
+                  constraints:
+                    primaryKey: true
+                    foreignKeyName: fk_person_address_aud_revinfo
+                    references: revinfo(rev)
+              - column:
+                  name: revtype
+                  type: int
+              - createIndex:
+                  columns:
+                    - column:
+                        name: rev
+                  indexName: person_address_aud_rev_idx

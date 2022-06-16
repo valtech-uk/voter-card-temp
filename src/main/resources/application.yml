@@ -1,17 +1,11 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:13306/test
-    username: user
-    password: password
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-    show-sql: true
-    hibernate:
-      use-new-id-generator-mappings: false
+    url: jdbc:mysql://localhost:3306/test
+    username: root
+    password: rootPassword
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
-    url: jdbc:mysql://localhost:13306/test
+    url: jdbc:mysql://localhost:3306/test
     user: root
     password: rootPassword
-
+    contexts: ddl

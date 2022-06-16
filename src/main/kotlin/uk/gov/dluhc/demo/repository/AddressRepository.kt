@@ -5,22 +5,24 @@ import org.hibernate.envers.Audited
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.*
-import javax.persistence.*
+import javax.persistence.Entity
+import javax.persistence.Id
 
 @Repository
-interface PersonRepository : JpaRepository<Person, UUID>
+interface AddressRepository : JpaRepository<Address, UUID>
 
 @Entity
 @Audited
-data class Person(
-    val name: String,
+data class Address(
+    val line1: String,
 
-    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "person_id", nullable = false)
-    val addresses: List<Address>,
+    val line2: String,
+
+    val town: String,
+
+    val postcode: String,
 
     @Id
     @Type(type = "uuid-char")
     val id: UUID = UUID.randomUUID(),
 )
-
