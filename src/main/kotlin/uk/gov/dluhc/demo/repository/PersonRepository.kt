@@ -8,19 +8,21 @@ import java.util.*
 import javax.persistence.*
 
 @Repository
-interface PersonRepository : JpaRepository<Person, UUID>
+interface PersonRepository : JpaRepository<Person, UUID> {
+    override fun findById(id: UUID): Optional<Person>
+}
 
 @Entity
 @Audited
 data class Person(
     val name: String,
 
-    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "person_id", nullable = false)
-    val addresses: List<Address>,
+    @OneToOne(cascade = [CascadeType.ALL], orphanRemoval = true)
+    @PrimaryKeyJoinColumn
+    val address: Address?,
 
     @Id
     @Type(type = "uuid-char")
-    val id: UUID = UUID.randomUUID(),
+    val personId: UUID = UUID.randomUUID(),
 )
 

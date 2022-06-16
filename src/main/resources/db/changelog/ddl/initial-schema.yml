@@ -22,9 +22,8 @@ databaseChangeLog:
             tableName: person
             columns:
               - column:
-                  name: id
+                  name: person_id
                   type: uuid
-                  generationType: identity
                   constraints:
                     primaryKey: true
               - column:
@@ -38,7 +37,7 @@ databaseChangeLog:
             tableName: person_aud
             columns:
               - column:
-                  name: id
+                  name: person_id
                   type: uuid
                   constraints:
                     primaryKey: true
@@ -65,18 +64,13 @@ databaseChangeLog:
             tableName: address
             columns:
               - column:
-                  name: id
-                  type: uuid
-                  generationType: identity
-                  constraints:
-                    primaryKey: true
-              - column:
                   name: person_id
                   type: uuid
                   constraints:
                     nullable: false
+                    primaryKey: true
                     foreignKeyName: fk_address_person
-                    references: person(id)
+                    references: person(person_id)
               - column:
                   name: line1
                   type: varchar(200)
@@ -103,7 +97,7 @@ databaseChangeLog:
             tableName: address_aud
             columns:
               - column:
-                  name: id
+                  name: person_id
                   type: uuid
                   constraints:
                     primaryKey: true
@@ -134,33 +128,3 @@ databaseChangeLog:
                     - column:
                         name: rev
                   indexName: address_aud_rev_idx
-
-        # person_address_aud table
-        - createTable:
-            tableName: person_address_aud
-            columns:
-              - column:
-                  name: person_id
-                  type: uuid
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: id
-                  type: uuid
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: rev
-                  type: int
-                  constraints:
-                    primaryKey: true
-                    foreignKeyName: fk_person_address_aud_revinfo
-                    references: revinfo(rev)
-              - column:
-                  name: revtype
-                  type: int
-              - createIndex:
-                  columns:
-                    - column:
-                        name: rev
-                  indexName: person_address_aud_rev_idx

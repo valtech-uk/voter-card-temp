@@ -24,5 +24,5 @@ data class Address(
 
     @Id
     @Type(type = "uuid-char")
-    val id: UUID = UUID.randomUUID(),
+    val personId: UUID = UUID.randomUUID(),
 )
