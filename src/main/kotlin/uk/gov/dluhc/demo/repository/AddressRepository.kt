@@ -1,16 +1,17 @@
 package uk.gov.dluhc.demo.repository
 
+import org.hibernate.annotations.GenericGenerator
 import org.hibernate.annotations.Type
 import org.hibernate.envers.Audited
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.*
-import javax.persistence.Entity
-import javax.persistence.Id
+import javax.persistence.*
 
 @Repository
 interface AddressRepository : JpaRepository<Address, UUID>
 
+@Table
 @Entity
 @Audited
 data class Address(
@@ -24,5 +25,7 @@ data class Address(
 
     @Id
     @Type(type = "uuid-char")
-    val personId: UUID = UUID.randomUUID(),
+    @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    val personId: UUID? = null,
 )

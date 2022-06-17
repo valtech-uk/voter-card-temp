@@ -67,10 +67,7 @@ databaseChangeLog:
                   name: person_id
                   type: uuid
                   constraints:
-                    nullable: false
                     primaryKey: true
-                    foreignKeyName: fk_address_person
-                    references: person(person_id)
               - column:
                   name: line1
                   type: varchar(200)
