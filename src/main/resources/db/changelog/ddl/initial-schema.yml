@@ -16,55 +16,12 @@ databaseChangeLog:
               - column:
                   name: revtstmp
                   type: bigint
-
-        # person table
-        - createTable:
-            tableName: person
-            columns:
-              - column:
-                  name: person_id
-                  type: uuid
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: name
-                  type: varchar(200)
-                  constraints:
-                    nullable: false
-
-        # person_aud table
-        - createTable:
-            tableName: person_aud
-            columns:
-              - column:
-                  name: person_id
-                  type: uuid
-                  constraints:
-                    primaryKey: true
-              - column:
-                  name: rev
-                  type: int
-                  constraints:
-                    primaryKey: true
-                    foreignKeyName: fk_person_aud_revinfo
-                    references: revinfo(rev)
-              - column:
-                  name: revtype
-                  type: int
-              - column:
-                  name: name
-                  type: varchar(200)
-              - createIndex:
-                  columns:
-                    - column:
-                        name: rev
-                  indexName: person_aud_rev_idx
         # address table
         - createTable:
             tableName: address
             columns:
               - column:
-                  name: person_id
+                  name: id
                   type: uuid
                   constraints:
                     primaryKey: true
@@ -94,7 +51,7 @@ databaseChangeLog:
             tableName: address_aud
             columns:
               - column:
-                  name: person_id
+                  name: id
                   type: uuid
                   constraints:
                     primaryKey: true
@@ -107,7 +64,7 @@ databaseChangeLog:
                     references: revinfo(rev)
               - column:
                   name: revtype
-                  type: int
+                  type: tinyint
               - column:
                   name: line1
                   type: varchar(200)
@@ -125,3 +82,55 @@ databaseChangeLog:
                     - column:
                         name: rev
                   indexName: address_aud_rev_idx
+
+        # person table
+        - createTable:
+            tableName: person
+            columns:
+              - column:
+                  name: person_id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address_id
+                  type: uuid
+                  constraints:
+                    foreignKeyName: person_address_fk
+                    references: address(id)
+
+        # person_aud table
+        - createTable:
+            tableName: person_aud
+            columns:
+              - column:
+                  name: person_id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: rev
+                  type: int
+                  constraints:
+                    primaryKey: true
+                    foreignKeyName: fk_person_aud_revinfo
+                    references: revinfo(rev)
+              - column:
+                  name: revtype
+                  type: tinyint
+              - column:
+                  name: name
+                  type: varchar(200)
+              - column:
+                  name: address_id
+                  type: uuid
+              - createIndex:
+                  columns:
+                    - column:
+                        name: rev
+                  indexName: person_aud_rev_idx

@@ -27,5 +27,5 @@ data class Address(
     @Type(type = "uuid-char")
     @GeneratedValue(strategy = GenerationType.IDENTITY, generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    val personId: UUID? = null,
+    val id: UUID? = null,
 )

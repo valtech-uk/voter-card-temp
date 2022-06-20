@@ -24,8 +24,7 @@ data class Person(
         orphanRemoval = true,
         fetch = FetchType.LAZY
     )
-    @JoinColumn(name = "person_id")
-    @MapsId
+    @JoinColumn(name = "address_id")
     val address: Address? = null,
 
     @Id

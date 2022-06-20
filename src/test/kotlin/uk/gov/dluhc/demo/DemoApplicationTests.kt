@@ -26,7 +26,7 @@ class DemoApplicationTests {
         assertPersisted(person)
 
         val address2 =
-            Address("Any Street 2", "Any District 2", "Any Town 2", "ABD CED", person.personId)
+            Address("Any Street 2", "Any District 2", "Any Town 2", "ABD CED", person.address?.id)
         val updatedPerson = person.copy(
             name = "Updated name",
             address = address2
@@ -39,7 +39,7 @@ class DemoApplicationTests {
         personRepository.delete(updatedPerson)
 
         assertThat(personRepository.findById(updatedPerson.personId!!)).isNotPresent
-        assertThat(addressRepository.findById(updatedPerson.personId!!)).isNotPresent
+        assertThat(addressRepository.findById(updatedPerson.address?.id!!)).isNotPresent
     }
 
     private fun assertPersisted(expected: Person) {
